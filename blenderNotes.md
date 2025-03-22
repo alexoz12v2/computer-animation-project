@@ -25,7 +25,6 @@
 - C – Circle select
 - Shift + G – Select similar (choose criteria like area, shape, or material)
 - Alt + RMB - loop select 
-
 - Shift + RMB - ring select 
 
 ## Transformations
@@ -82,6 +81,7 @@
 Temp
 Press Shift + Right Click to place the 3D Cursor manually.
 Or use Shift + S → "Cursor to Selected" to place it at the selection.
+
 Change the Pivot Point to Cursor:
 
 In Object Mode, go to the top-center of the viewport (next to the selection mode dropdown) where the pivot point options are.
@@ -353,9 +353,9 @@ to keep the F-Curve as smooth as possible.
       <li>Open the cube example you produced from the previous experiment</li>
       <li>Open the <em>Graph Editor</em> and select a "Location" Curve (the one with the bigger displacement in the Vertical axis)</li>
       <li>Play around with the 2 Handles freely. Example: Use the last one as "Bezier" Interpolation and create an "overshoot"</li>
-	  <li>Change the Extrapolation mode to Linear and then to Make Cyclic</li>
-	  <li>Check in the <em>Graph Editor</em>/Modifiers (Tab) that The Cycles Modifier has been added to the F-Curve</li>
-	  <li>Go back to the start of the timeline (<strong>Shift+Left Arrow</strong>) and play the animation (<strong>Spacebar</strong>)</li>
+      <li>Change the Extrapolation mode to Linear and then to Make Cyclic</li>
+      <li>Check in the <em>Graph Editor</em>/Modifiers (Tab) that The Cycles Modifier has been added to the F-Curve</li>
+      <li>Go back to the start of the timeline (<strong>Shift+Left Arrow</strong>) and play the animation (<strong>Spacebar</strong>)</li>
     </ol>
   </div>
 </div>
