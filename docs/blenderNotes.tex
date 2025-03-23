@@ -11,6 +11,7 @@
 \usepackage{booktabs}
 \usepackage{mdframed}
 \usepackage{lmodern} % For better font rendering
+\usepackage{titlesec} % titleformat
 
 \definecolor{codebg}{rgb}{0.95,0.95,0.95}
 
@@ -20,6 +21,42 @@
     frame=single,
     breaklines=true
 }
+
+% setup something below subsubsection
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
+
+\titleformat{\subsubsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3ex plus 1ex minus .3ex}{1.5ex plus .2ex}
+
+\makeatletter
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+%\def\toclevel@paragraph{6}
+\def\toclevel@subparagraph{6}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\def\l@paragraph{\@dottedtocline{5}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{6}{14em}{6em}}
+\makeatother
+
+% end of paragraph setup
 
 \begin{document}
 
@@ -322,7 +359,7 @@ object they refer to and which property they alter/set, use the \textit{Dope She
     \textit{Keep this example for the next section on Interpolation.}
 \end{mdframed}
 
-\subsubsection{Interpolation}
+\paragraph{Interpolation}
 When you set two keyframes on the same property, its value changes over the span of frames inbetween the two keyframes with \textit{Interpolated Values}, ie values computed using
 a matematical formula. In particular, such formula is defined by an \href{https://docs.blender.org/manual/en/4.3/editors/graph_editor/fcurves/introduction.html}{\textit{F-Curve}},
 manipulated in the \textit{Graph Editor}.
@@ -370,17 +407,192 @@ When not \textit{None}, edits to a handle are propagated in the near handles (si
     \textit{Keep this example for the next section on Interpolation.}
 \end{mdframed}
 
-\subsubsection{Keyframe Types}
+\paragraph{Keyframe Types}
+Blender has different keyframe types. Such type is determined by the keyframe's source (eg set manually or automatically generated), as well as the effect they achieve.\\
+To change a keyframe type
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item In the \textit{Dope Sheet Editor}, select the keyframes you want to change
+    \item Click the \textbf{Menu Key} (to the left of the right CTRL key) to display the popup context menu, therefore click "KeyFrame Type" and select your keyframe type
+\end{enumerate}
+Note: \textbf{This has no functional purpose}, it is merely a visual tool to help us navigate into complicated animations.\par
+Another visual tool the \textit{Dope Sheet Editor} and \textit{Graph Editor} give us are \textit{Marker}s, which can assign a name to a keyframe. To create a marker:\footnote{the file
+    \mbox{\texttt{02\_Keyframes\_Interpolation-Moving\_Cube\_Custom\_Interpolation.blend}} contains an Extreme keyframe and a marker}
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item select the keyframe you want to label
+    \item press \textbf{M}
+    \item then select the marker and, from the top menu of the editor, click "Marker/Rename Marker"
+\end{enumerate}
+Here's the list of the available Keyframe types, their visual appearence, and their meaning
+\begin{longtable}{llp{0.4\textwidth}}
+    \toprule
+    \textbf{Keyframe Type} & \textbf{Appearence (Not Selected / Selecteed)} & \textbf{Meaning}                                                                \\
+    \midrule
+    \endhead
+    \bottomrule
+    \multicolumn{3}{l}{Continue...} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \endlastfoot
 
-\section{Animation: Used Editors}
-\subsection{Properties Editor}
+    \textit{Keyframe}      & white / yellow diamond                         & Normal keyframe.                                                                \\
+    \textit{Breakdown}     & small cyan diamond                             & Breakdown state. e.g. for transitions between key poses.                        \\
+    \textit{Moving Hold}   & dark gray / orange diamond                     & A keyframe that adds a small amount of motion around a holding pose.
+    In the Dope Sheet it will also display a bar between them.                                                                                                \\
+    \textit{Extreme}       & big pink diamond                               & An "extreme" state, or some other purpose as needed.                            \\
+    \textit{Jitter}        & tiny green diamond                             & A filler or baked keyframe for keying on ones, or some other purpose as needed. \\
+    \textit{Generated}     & dark diamond                                   & A key generated by some tool, for example Copy Global Transform: Fix to Camera.
+    This keyframe type indicates to Blender and add-ons that
+    it is safe to remove and re-generate them, so be careful when manually marking your hand-made animation with this type.                                   \\
+\end{longtable}
+\begin{figure}
+    \includegraphics[width=0.45\textwidth]{blender_docs_images/keyframe_types.png}
+    \includegraphics[width=0.3\textwidth]{blender_docs_images/animation_keyframes_introduction_interpolation.png}
+    \caption{\textbf{To the left}, keyframe types. \textbf{To the right}, bezier interpolation handles type}
+\end{figure}
+\paragraph{Interpolation Mode Handles}
+Similiarly to \textit{Keyframe Types}, the \textit{Dope Sheet Editor} shows Keyframe interpolation handles with \textit{Bezier} mode differently based on the handle type given in the F-Curve tab, 
+giving us some visual feedback without having to open the \textit{Graph Editor}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Circle}: Auto Clamped (default)
+    \item \textit{Circle with Dot}: Automatic
+    \item \textit{Square}: Vector
+    \item \textit{Clipped Diamond}: Aligned
+    \item \textit{Diamond}: Free
+\end{itemize}
+This holds only if the left handle and right handle have the same type, otherwise, it's always displayed as a Diamond.
 
-\subsection{Playback Editor}
+\subsubsection{Keying Sets}
+Reference Video: \href{https://www.youtube.com/watch?v=5g7EbDtlKGM}{https://www.youtube.com/watch?v=5g7EbDtlKGM}\\
+Whenever you press \textbf{I} to create a keyframe, the newly created keyframw will automatically Store and therefore animate the whole \textit{Object Transform}, and animated properties 
+appear grouped under the "Object Transform" group, or better, under the \textit{Keying Set} "CubeAction", .
+\begin{center}
+    \includegraphics[width=0.5\textwidth]{blender_docs_images/keyframe_types.png}
+\end{center}
+If we want to animate only certain properties of our objects, we would need to spend time finding them in the appropriate tab inside the \textit{Properties Editor}, 
+right click and "Insert Keyframe".\par
+We can speed up the Keyframe creation process by specifying which properties we want to animate, and we can do that by creating a \textit{Keying Set}, found inside the \textit{Properties Editor}, under 
+\mbox{"Scene/Keying Sets"}\footnote{Once you create a keying set, the default one won't be active anymore, and you need to add at least one property to the active (selected/highlighted)}.\par
+Once you create a keying set, you can add properties to it by
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Right Clicking the property (eg. from the \textit{Properties Editor}, Object Tab)
+    \item Click "Add Single to Keying Set" to add the property to the active keying set
+\end{enumerate}
+Once you added it, go back to the \mbox{Scene/Keying Sets/Active Keying Set} panel and make sure that
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item The \textit{Target ID Block}, ie to which object the keyframe should be applied has no object selected. This means that, regardless of which object you have selected, the keyframe will be 
+      created from the object you specify here
+    \item You can modify the \textit{Index} of the property, ie the order in which they appear inside the \textit{Dope Sheet Editor}
+    \item You can modify how the animated properties are organized into a folder hierarchy by changing the \textit{F-Curve Grouping} (details in video)
+\end{itemize}
+Furthermore, if you want to export and import keying sets from a blender scene to another, you can click the \mbox{\textit{Export to File}} button to generate a Python script, which, executed on 
+a new scene, will create the keying set you exported.\par\footnote{Maybe modifying that script you can also use the \texttt{bpy.context.active\_object} instead of fixing the keying set property object?}
+Usage Limited on a specific scenario, for example
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item You have a predefined set of objects you want to animate. Therefore, you can create a Keying set which encompasses all the properties across all the different objects you need
+    \item You can select a frame, modify the properties of \textit{all the objects} to their desired value, and then press \textbf{I} once (instead of setting all the properties from the context 
+    menu or pressing \textbf{I} for each object)
+\end{itemize}
+Instead of going to the \textit{Properties Editor}, \mbox{"Scene/Keying Sets"}, you can set the Active Keying set also from the \textit{Timeline Editor}, the Keying dropdown menu.
 
-\subsection{Dope Sheet Editor}
+\subsection{Actions}
+Video Reference: 
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Part1: \href{https://www.youtube.com/watch?v=x28RWgsIu8Y}{https://www.youtube.com/watch?v=x28RWgsIu8Y}\footnote{This rig is also available for download!}
+    \item Part2: \href{https://www.youtube.com/watch?v=LXMiHvwIgDs}{https://www.youtube.com/watch?v=LXMiHvwIgDs}
+\end{itemize}
+Blender saves everything as a \textit{Data Block}, and animations are no exceptions. In fact, whenever we create a new keyframe, blender actually creates for us a new \textit{Action}, with a 
+default name equal to \mbox{"(Object Name)Action"}. To visualize all Actions in your scene\footnote{Useful if you want to remove some unused data which is still present in the .blend file}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item In the \textit{Outliner Editor}, open the \textit{Data API} Display Mode, and click under the item "Actions"
+\end{itemize}
+The structure of the Action Data block is the following
+\begin{center}
+    \includegraphics[width=0.5\textwidth]{blender_docs_images/animation_actions_data3.png}
+\end{center}
+Succinctly, \textbf{Actions are reusable animation segments}.\\
+Actions can be managed from 2 places
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Dope Sheet Editor}, with Display Mode \textit{Action Editor} (and not the default \textit{Dope Sheet}, which gives an overview of the current action)
+    \item \textit{NLA Editor} sidebar (See later \textit{Non Linear Animations})
+\end{itemize}
+This allow us to 
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Apply the same Action to different objects (as shown in the second video, in which the animation is first applied to a stand in, then applied to the final model)
+    \item Store different animations applied to the same object (example running, walking, throwing a punch, ...), all starting from zero. Of course, we then need to \textbf{Combine} them together\\
+    (Example: We want our character to run to a given position, and then throw a punch) (used with NLA)
+\end{itemize}
+In the \mbox{\textit{Dope Sheet Editor}/\textit{Action Editor}}, the Action Sidebar shows 2 checkboxes
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Manual Frame Range}: Instead of using the range specified by the \textit{Timeline Editor}, uses a manually specified frame range (used with NLA)
+    \item \textit{Cyclic Animation} The animation is Cyclic over the specified range (used with the previous checkbox)
+\end{itemize}
+\paragraph{Non Linear Animations}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Video Reference: \href{https://www.youtube.com/watch?v=Hz1TwvSNsrA}{https://www.youtube.com/watch?v=Hz1TwvSNsrA} (\textbf{Really Important})\\
+    \item Blender Ref: \href{https://docs.blender.org/manual/en/4.3/editors/nla/introduction.html}{https://docs.blender.org/manual/en/4.3/editors/nla/introduction.html}
+\end{itemize}
+To combine different actions, we need to use the \textit{NLA Editor}. Brief description of the content of this editor
+\begin{figure}
+    \includegraphics[width=0.5\textwidth]{blender_docs_images/editors_nla_tracks_example.png}
+    \caption{Example of \textit{NLA Editor} Tracks}
+\end{figure}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Left Panel containing a down down menu for each object containing at least 1 action. Each dropdown menu is a \textbf{Stack of Actions}
+    \item The Main Region displays a Stack of \textit{Track}, in which each Track is made up of \textit{Strips}. The top of the stack, highlighted in orange, which contains no strips, is the 
+    object's \textit{Active Action}
+    \item Right Panel, non empty only for the active object's action, having options \textit{Extrapolation} (already seen), \textit{Blending}, \textit{Influence}. Brief:
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item \textit{Blending}\footnote{Link: \href{https://docs.blender.org/manual/en/4.3/editors/nla/sidebar.html?utm_source=blender-4.3.2\#bpy-types-animdata-action-blend-type}{https://docs.blender.org/manual/en/4.3/editors/nla/sidebar.html?utm\_source=blender-4.3.2\#bpy-types-animdata-action-blend-type}}
+          how to combine this action's property values with the ones from the track below (similiar to layer modes in Photoshop). Formulas used by each mode in the footnote link 
+        \item \textit{Influence} how much the actions contributes to the NLA Stack
+    \end{itemize}
+\end{itemize}
+\begin{mdframed}[linewidth=2pt, linecolor=gray, roundcorner=1pt, innermargin=2pt, outermargin=2pt]
+    \textbf{\Large Quick Experiment: Actions and Non Linear Animation: "Enlarge and Shoot"} \\[6pt]
+    \textbf{File:} \texttt{03\_Actions\_NLA-Cube\_Path.blend} \\[6pt]
 
-\subsection{Graph Editor}
+    \begin{enumerate}[topsep=0pt, noitemsep]
+        \item Create a Cube, and in the \mbox{\textit{Dope Sheet Editor}/\textit{Action Editor}} create a new Action, call it \mbox{"Cube\_Enlarge"}
+        \item Open the \textit{NLA Editor} alongside \mbox{\textit{Dope Sheet Editor}/\textit{Action Editor}}, and \textit{Push Down} (either from NLA Editor of from Dope Sheet) the current action.\\
+        As you can see, this will create a new \textit{Track} containing a single \textit{Strip} which contains the action we just pushed.
+        \begin{itemize}[noitemsep, topsep=0pt]
+            \item Now the object has no active action, and in fact the dope sheet is empty...
+            \item ... But if you press \textbf{Shift + Left Arrow} and \textbf{Spacebar} (go to beginning of timeline and play), the animation still plays out, because the final animation is the 
+              \textbf{composition of the whole NLA Stack}
+            \item On the newly created \textit{Track}, try to grab the \textit{Strip} and move it along the Track's timeline. A strip can be placed wherever we want in the frame range
+            \item To the left of each \textit{Track} there is a visibility checkbox. If deactivated, the \textit{Track}'s animation won't be played out
+        \end{itemize}
+        \item Create another action to move the cube, with an "explosive" F-Curve, ie most of the displacement is done earlier in the F-Curve (therefore you need to open it in the \textit{Graph Editor})\\
+          (it is reccomended to turn off all NLA Tracks while working on another action in the \textit{Dope Sheet})
+        \item Push down the newly created Action in the NLA Stack. This will create a new NLA Track. We don't want that, so click and drag the \textit{Strip} in the new \textit{Track} onto the 
+        existing track, delete the now empty track, and place the Shoot Action after the Enlarge action. The result should be something like this:
+        \begin{center}
+            \includegraphics[width=0.5\textwidth]{blender_docs_images/my_nla_example.png}
+        \end{center}
+        \item Note: \textbf{Having more strips that modify different properties will reset all the work done by the previous strip, even if Extrapolation is set to Hold in the right side panel, strip menu}\\
+            As you can see playing out the animation, after the Enlarge Action is done, the cube snaps back to its original scale and starts traslating. Fix:
+            \begin{itemize}[noitemsep, topsep=0pt]
+                \item Have \textit{Strips} which modify different properties in different \textit{Track}s. Therefore, from the topbar of the Editor, with a track selected, Click \mbox{Track/Add} and 
+                    move one of the two strips in the newly created Track\footnote{Remember to rename the tracks in a "serious" project}
+            \end{itemize}
+    \end{enumerate}
+\end{mdframed}
+Important Note: \textbf{Unassigned Actions are LOST when you quit blender if they are not used by anybody, therefore you need to protect them with a fake user}.\\
+As a remainder on how to add a fake user, you can do it in different ways, one of them is by clicking the "Shield" icon from the \mbox{\textit{Outliner Editor}/Blender File} Display mode, under Actions.\par
+For more detail, eg how to \textit{Repeat} (Under \mbox{NLA Editor/Strip/Action Clip/Repeat}) a Strip, check out the Reference video.
 
-\section{Animation Scenario: Camera Rig}
+\subsection{Armatures}
+\subsection{Lattice}
+\subsection{Constraints}
+\subsection{Drivers}
+\subsection{Shape Keys}
+\subsection{Motion Paths}
+
+\section{Animations Through Physics}
+
+\section{Compositing Essentials}
+
+\section{Video Editing Essentials}
 
 \end{document}
