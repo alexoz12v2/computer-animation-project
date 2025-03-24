@@ -548,6 +548,12 @@ To combine different actions, we need to use the \textit{NLA Editor}. Brief desc
         \item \textit{Influence} how much the actions contributes to the NLA Stack
     \end{itemize}
 \end{itemize}
+Each Strip of an NLA Track has 2 fundamental settings 
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Extrapolation} should we hold the pose once the strip finishes?
+    \item \textit{Blending} how to mix with NLA tracks underneath
+    \item \textit{Blend In} and \textit{Blend Out} Fade effects for when the strip starts and finishes playing
+\end{itemize}
 \begin{mdframed}[linewidth=2pt, linecolor=gray, roundcorner=1pt, innermargin=2pt, outermargin=2pt]
     \textbf{\Large Quick Experiment: Actions and Non Linear Animation: "Enlarge and Shoot"} \\[6pt]
     \textbf{File:} \texttt{03\_Actions\_NLA-Cube\_Path.blend} \\[6pt]
@@ -577,12 +583,154 @@ To combine different actions, we need to use the \textit{NLA Editor}. Brief desc
                     move one of the two strips in the newly created Track\footnote{Remember to rename the tracks in a "serious" project}
             \end{itemize}
     \end{enumerate}
+    {\tiny Quick Tip: In your Animation Layout, use two bottom panels, the bottom one \textit{NLA Editor}, and the top one will switch between \mbox{\textit{Dope Sheet Editor}/\textit{Action Editor}}
+      and \textit{Graph Editor} with the shortcuts \mbox{\textbf{Shift + F12}} and \mbox{\textbf{Shift + F6}}
+    }
 \end{mdframed}
 Important Note: \textbf{Unassigned Actions are LOST when you quit blender if they are not used by anybody, therefore you need to protect them with a fake user}.\\
 As a remainder on how to add a fake user, you can do it in different ways, one of them is by clicking the "Shield" icon from the \mbox{\textit{Outliner Editor}/Blender File} Display mode, under Actions.\par
 For more detail, eg how to \textit{Repeat} (Under \mbox{NLA Editor/Strip/Action Clip/Repeat}) a Strip, check out the Reference video.
 
 \subsection{Armatures}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Video Workshop: \href{https://www.youtube.com/watch?v=iZBLtooU2Cs}{https://www.youtube.com/watch?v=iZBLtooU2Cs} (This is a follow along type of tutorial. from beginning to 58:51 is about armature creation, then follows skinning, then in 1:22:01 armature keyframed animation)
+    \item Blender Docs: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/introduction.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/introduction.html}
+\end{itemize}
+An \textit{Armature} is a hirerachical structure of \textit{Bones} (an Acyclic Directed Graph, to be precise).\par
+To create a bone in a fresh blender scene, use \mbox{Add/Armature}. Observe in the \mbox{\textit{Outliner Editor}}, \textit{Blender File} Display mode, what a bone created for us.
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Expand the \textit{Armatures} tab and \textit{Objects} tab.
+    \item As you can see, we created an \textit{Armature}, and an Object containing that armature.
+    \item The armature has inside it a composite structure
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item \textit{Pose} The object itself has an additional data property, which is the Pose (in fact, there is a Armature tab in the \textit{Properties Editor})
+        \item \textit{Bone} Hierarchy and \textit{Bone Collection} inside the armature
+        \item Go to edit mode and extrude the bone. Now the bone hierarchy has an additional bone
+    \end{itemize}
+\end{enumerate}
+Once you select an armature object, you can see from the viewport that it has only 3 modes: \mbox{Object Mode}, \mbox{Edit Mode}, and \mbox{\textit{Pose Mode}}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Edit Mode: Create More bones
+    \item Pose Mode: The Armature is done, and you want to create some key poses for your armature
+\end{itemize}
+To have X-Ray on the bones, click, inside the Data tab in the \textit{Properties Editor} the option \mbox{\textit{Viewport Display/In Front}}.\\
+To Rename your selected bone, use \textbf{F2}.\\
+If the armature is supposed to be symmetric
+\begin{figure}
+    \centering
+    \label{symm::armature}
+    \includegraphics[width=0.5\textwidth]{blender_docs_images/my_symmetric_armature.png}
+    \caption{Symmetrizing an Armature}
+\end{figure}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Create one side (eg right arm, right leg) and the middle too
+    \item Click \textbf{F3} and type "Armature Symmetrize" (See figure \ref{symm::armature})
+    \item \textbf{Symmetrization works only if you follow the blender naming conventions with blender}. Renaming bones therefore becomes mandatory\\
+    There are different variants, basically you have to use the format "\textit{Thing\_R}" for right and "\textit{Thing\_L}" for left, and no suffix for bones in the middle.\\
+    Link: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/editing/naming.html\#armature-editing-naming-conventions}{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/editing/naming.html\#armature-editing-naming-conventions}
+\end{itemize}
+To visualize the hierarchy of bones without using the Outliner, you can use the \mbox{\textit{Properties Editor}}, in the \textit{Bones} Data tab, under "Relations", in which you can see the direct
+parent of the selected bone.\par
+To create a new bone, you can Extrude it with \textbf{E} in Edit mode, but you can also use the \textit{Subdivide} command from the edit mode context menu (with a bone selected).
+
+\paragraph{Forward Kinematic vs Inverse Kinematic}
+If you create a bone hierarchy, go to \mbox{\textit{Pose Mode}}, and then try to move one of its bones (example: a hand of a humanoid character), you'll notice that you can only rotate the selected bone
+subtree. By default, by moving a bone, you \textbf{move only its subtree}, ie \textbf{a child cannot move a parent}.\par
+What if we want to move the hand of our humanoid and we want the elbow to follow it? \textit{Inverse Kinematic}\par\footnote{Side: To clear the pose in \textit{Pose Mode}, use \mbox{"Pose/Clear Transform/All"}}
+To create an \textit{IK Rig} (Workshop video, 26:16), we need
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textbf{create \textit{IK Target}}, which is a duplicate bone (\textbf{Shift + D}) of the bone that should trigger inverse kinematic (eg hand, foot)\footnote{Naming convention: OriginalBoneName + IK + \_L/\_R}
+    \item with the duplicate bone selected, go to \textit{Properties Editor}, Bones Data Tab, "Relations" and \textbf{remove the parent}
+    \item Press \textbf{N} (Edit Mode) and adjust the Length property of this bone, such that it is easier to select
+    \item Before adding any IK constraints, once your basic bones are already placed, \textbf{reset all bones roll}: \mbox{Armature/Bone Roll/Recalculate Roll/View Axis} (from a character-frontal orthographic view)
+    \item Go back to \textit{Pose Mode}, select the bones you need to affect and go to the \textit{Bone Constraint} tab, add the constraint \textit{Inverse Kinematic}. Under its options
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item Select as target: the armature itself
+        \item select as bone: IK Bone\footnote{At this point, IK works, but the IK target moves the whole armature}
+        \item Select the bone with the constraint and change the \textit{Chain Length} property (0 = infinite, 1 = affect only 1 adjacent bone)\footnote{At this point, the original bone doesn't follow the orientation of the IK bone}
+        \item select the original bone, and add a bone constraint \textit{Copy Rotation}, and set the Target Property: armature, and Bone: IK Bone\footnote{The IK Bone can still move freely, don't make it go too far}
+        \item with the IK Bone selected, go to the bone data tab and check off the tab \textit{Deform}.\footnote{we don't want the IK bones to pull vertices of the mesh once skinned}
+    \end{itemize}
+\end{itemize}
+After you've done that, say you want to hide the original hand bone (since you'll be manipulating the IK one), you can do that by moving the hand bone into a different \textit{Bone Layer}. Bone layer
+options can be found under the \textit{Armature} data tab in \mbox{\textit{Properties Editor}}, "Skeletor/Layers", or you can select the bone and press \textbf{M}. Then, you can turn on/off bone layers
+as you need.
+
+\paragraph{IK Pull Target}
+(Video Workshop: 35:16)\\
+Say you want to realize an elbow for a humanoid character. When animating it, you don't want to manipulate the forearm directly, you want to control a handle which should be the direction into which the 
+elbow tip should point to, ie, a \textit{Pull Target}.\footnote{process used for knee, elbow, ...}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item With the elbow \textbf{Joint}\footnote{joint = little sphere, bone = connects two joints} selected, extrude a new bone strictly backward.\footnote{to a position in which the elbow cannot reach} (call that ElbowIK\_L)
+    \item Remove the parent of the newly selected bone (Relations tab under the bone data tab in the \mbox{\textit{Properties Editor}})
+    \item Select the forearm bone (the one whose base joint contains is elbow), go in \textit{Pose Mode}, which should already have an IK constraint (if you configured the hand), 
+    select as \textit{Pull Target} the armature itself, and as \textit{Bone} for the pull the elbow IK bone.
+    \item Change the \textit{Pole Angle} in the IK Constraint such that it matches the desired direction (it's a trial and error process, so move around the forearm)
+\end{itemize}
+
+\paragraph{Controller Bone}
+A Bone to move the whole character:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item move the 3D Cursor where the bone controller should be (eg. world origin)
+    \item Create a new armature object. The newly created bone will be the new parent of the other armature object
+    \item Turn off deform for this controller bone (Bone Data tab inside the \mbox{\textit{Properties Editor}})
+    \item therefore select first then the original armature the controller and press \mbox{\textbf{Ctrl + P}} (\mbox{Control Parent}) and click \mbox{\textit{Keep Offset}}\footnote{now the IK Bones are not following the controller}
+    \item select all IK Bones (ie bones which are not in the hierarchy), then select the controller bone and \mbox{\textbf{Ctrl + P}}
+\end{itemize}
+
+\paragraph{Non Limb Bones}
+We are referring to bones which should animate part of a model which is separated (on a different mesh object) (example: Hen Welding Helmet). While you can modify its pivot and keyframe its rotation, 
+having a bone with some predefined poses makes the whole process much easier.\par
+These bones, \textbf{even if they affect a different mesh the armature is a single hierarchy}, so use \mbox{\textbf{Ctrl + P}} after placing your bone. Furthermore, all of these bones should have 
+\textit{Deform} (from the bone data tab in the \mbox{\textit{Properties Editor}}) turned off, such that they do not influence the main body\footnote{How to skin and influence different parts later}. That's
+because the non-limb parts just need to rotate following the bones, not deform.\par
+When skinning with non limb bones, use parenting with \textit{Bone}, and not \textit{Armature Deform}, \textbf{With the correct bone selected}
+
+\paragraph{Bones Viewport display}
+Changes the way bones are visualized (some can be manipulated in edit mode by scaling bones (remember to reset transform)). Viewport Display is found in the \textit{Armature} Data Tab in the
+\mbox{\textit{Properties Editor}}
+
+\subsection{Skinning and Topology}
+Here are some links:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Topology Guide: \href{https://topologyguides.com/}{https://topologyguides.com/}
+    \item Retopology in blender: \href{https://www.youtube.com/watch?v=1myOZaxtHes}{https://www.youtube.com/watch?v=1myOZaxtHes}
+    \item Topology for animation video: \href{https://www.youtube.com/watch?v=qfSRiE-6FtA}{https://www.youtube.com/watch?v=qfSRiE-6FtA}
+\end{itemize}
+
+\subsubsection{Bones}
+As we've seen, bones can be classified into 2 basic categories, \textit{Deforming Bones} and \textit{Control Bones}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Deforming Bones}:
+    \item \textit{Control Bones}:
+\end{itemize}
+
+\paragraph{Bone Collections}
+
+\subsubsection{Skinning}
+Select the mesh, select the armature\footnote{child then parent}, \mbox{\textbf{Ctrl + P}} -> Choose \mbox{Armature Deform/With Automatic Weights}. The mesh not has a \textit{Armature} Modifier\footnote{Be 
+carefor of where in the modifier list the armature modifier is. Exmaple: It shouldn't be on below a subdivision modifier, such that it controls a simpler mesh. It shouldn't be above a mirror modifier, 
+otherwise only the original mesh, and not the mirrored one, will be deformed. \textbf{Modifiers are applied top to bottom}}\par
+The mesh, skinned with automatic weights, never works properly. We need to use the \textit{Weight Paint Mode} to manually adjust the weights of each bone.\par
+To check the vertex weights for a given vertex
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Select a skinned mesh and go to \mbox{\textit{Edit Mode}}, select a vertex
+    \item press \textbf{N} to bring up the sidebar, select the \textit{Item} tab and expand the \mbox{\textit{Vertex Weights}} submenu. This will contain a list of bones which have a nonzero weight
+\end{enumerate}
+In fact, once you skinned with automatic weights, blender created for you a \mbox{\textit{Vertex Group}} for each bone (with the same name). Each \mbox{\textit{Vertex Group}} contains the vertices that 
+are affected by a given bone.
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item with the skinned mesh selected, go to the Data panel of the \mbox{\textit{Properties Editor}}, \mbox{\textit{Vertex Group}} and select a vertex group for a bone. Pressing \textbf{A} with a 
+    vertex group selected will select all vertices in the vertex group
+\end{itemize}
+
+\paragraph{Weight Paint Overview}
+Video Workshop: 1:14:25\\
+Clicking \mbox{\textbf{Ctrl + RMB}}\footnote{I use right mouse button selection, otherwise left mouse button} lets you select the bone you want to edits the weights of.\\
+By clicking into the brush icon (under the \mbox{"Weight Paint"} text) you can select the type of brush you want to use. By type we mean the math operation done to the weights. (eg. add, subtract).\\
+In weight painting, having a \textbf{mirror modifier} saves you a lot of headache! Blender can recognize .R and .L bones with the mirror modifier!\\
+
+
 \subsection{Lattice}
 \subsection{Constraints}
 \subsection{Drivers}
