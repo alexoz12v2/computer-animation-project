@@ -216,6 +216,9 @@ Alternatively:
     \item Object - Set Origin
 \end{itemize}
 
+\section{Sharing: Asset Browser}
+Video Reference: \href{https://www.youtube.com/watch?v=cbzBt60dhY8}{https://www.youtube.com/watch?v=cbzBt60dhY8}\\
+
 \section{Animations: Docs Summary}
 These notes about animations in Blender are made by summarizing the \href{https://docs.blender.org/manual/en/4.3/animation/introduction.html}{Blender 4.3 Docs}.
 
@@ -595,6 +598,8 @@ For more detail, eg how to \textit{Repeat} (Under \mbox{NLA Editor/Strip/Action 
 \begin{itemize}[noitemsep, topsep=0pt]
     \item Video Workshop: \href{https://www.youtube.com/watch?v=iZBLtooU2Cs}{https://www.youtube.com/watch?v=iZBLtooU2Cs} (This is a follow along type of tutorial. from beginning to 58:51 is about armature creation, then follows skinning, then in 1:22:01 armature keyframed animation)
     \item Blender Docs: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/introduction.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/introduction.html}
+    \item Reference Rig: \href{https://blendswap.com/blend/25094}{https://blendswap.com/blend/25094}
+    \item Note: Use Quaternion as rotation mode
 \end{itemize}
 An \textit{Armature} is a hirerachical structure of \textit{Bones} (an Acyclic Directed Graph, to be precise).\par
 To create a bone in a fresh blender scene, use \mbox{Add/Armature}. Observe in the \mbox{\textit{Outliner Editor}}, \textit{Blender File} Display mode, what a bone created for us.
@@ -701,13 +706,85 @@ Here are some links:
 \subsubsection{Bones}
 As we've seen, bones can be classified into 2 basic categories, \textit{Deforming Bones} and \textit{Control Bones}
 \begin{itemize}[noitemsep, topsep=0pt]
-    \item \textit{Deforming Bones}:
-    \item \textit{Control Bones}:
+    \item \textit{Deforming Bones}: Bones which, when transformed, will transform the vertices they are associated with (See Section \ref{armature:skinning})
+    \item \textit{Control Bones}: They control other bones and have no direct effect on vertices. Examples of this are \textit{IK Target Bones} and \textit{Main Controller Bone}
 \end{itemize}
 
 \paragraph{Bone Collections}
+Similiarly to how you can group objects into Collections in the \mbox{\textit{Outliner Editor}}, you can group bones into \mbox{\textit{Bones Collections}}. \textbf{This won't affect the bones hierarchy}.
+Bone Collections can be created and managed from the \textit{Armature} and \textit{Bone} Property Panels in the \mbox{\textit{Property Editor}}.\par\footnote{Note: Bone Collections are a blender 4.0 
+replacement for armature layers and bone groups}
+There are 2 primary usages for Bone Collections:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textbf{Organization and visibility}: You can turn off each layer group individually
+    \item \textbf{Library Overrides}\footnotemark: When you try to \textit{Link} an armature\footnote{Meaning The Armature Itself + Armature Object}, you can modify the imported bone collections by
+    \begin{enumerate}[noitemsep, topsep=0pt]
+        \item Link The Armature, which should be inside a collection. \mbox{\textit{File/Link}}.
+        \item Select the linked armature and go to \mbox{\textit{Object/Relations/Make Library Override}} (\mbox{\textbf{Ctrl + Shift + O}})
+        \item In \mbox{\textit{Pose Mode}}, open the \textit{Bone Collections} panel in the Armature Properties tab
+        \item Click the \textit{Override} Button (Outliner, Right click on the component with the chain icon, select \mbox{\textit{ID Data/Make Library Override Hierarchy}})
+        \item Change the link mode for the bone collections from data to object (see video footnote, minute 5:00 - 5:15)
+        \item (Maybe?) \textbf{Ctrl + L} and check the appropriate link option
+    \end{enumerate}
+    \footnotetext{Link on Library overrides: \href{https://www.youtube.com/watch?v=nujaW-qNoRk}{https://www.youtube.com/watch?v=nujaW-qNoRk}}
+\end{itemize}
+Bone Collections Example:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item FK Controls
+    \item IK Controls
+    \item Face Controls
+    \item Face Detail Controls
+\end{itemize}
 
-\subsubsection{Skinning}
+\paragraph{Bone Selection Shortcuts}
+Reference: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/selecting.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/selecting.html}
+\begin{longtable}{lp{0.7\textwidth}}
+    \toprule
+    \textbf{Shortcut} & \textbf{Brief} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{2}{r}{Continue...} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \endlastfoot
+
+    \textbf{[}, \textbf{]} & Select Parent, Select Child \\
+    \textbf{Shift + [}, \textbf{Shift + ]} & Extend selection with Parent, Extend Selection with Child \\
+\end{longtable}
+
+\paragraph{Bone Editing}
+Very similiar to Mesh Editing. We've already seen how \textit{Extrude}, \textit{Subdivide}, \textit{Grab}, \textit{Symmetrize}, \textit{Parenting}, \textit{Naming} work in the first paragraph of this
+subsection. you can find additional commands, such as \textit{Split} (\textbf{P}), in the documentation \href{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/editing/index.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/editing/index.html}.\par
+An important editing command, which should be performed before skinning, is \textit{Bone Roll Recalculation} (\mbox{\textit{Armature/Bone Roll/Recalculate Roll}} or \textbf{Shift + N})
+
+\paragraph{Bone Properties}\footnote{Excluding Transform, Viewport Display, Relations, which have been already covered}
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item \mbox{\textit{\textbf{Bendy Bones}}} Bones which can be curved, as they are represented as a Bezier Curve. Perfect for modeling chains of small ligaments/bones such as the Human spine column or
+    facial bones. In Edit Mode, we can control the Bendy Bone as a Bezier Curve, and its properties editor, under the bendi bone panel, has your typical Bezier Curve Controls, such as number 
+    of \textit{Segments}, Reference: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/properties/bendy_bones.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/bones/properties/bendy\_bones.html}
+    \item \mbox{\textit{\textbf{Inverse Kinematics}}} Controls how the bone behaves when linked in a \textbf{Inverse Kinematic Chain}\footnote{Signaled with a yellow line}. More details on this in the 
+    Posing SubSection, Bone Constraints Paragraph
+    \item \mbox{\textit{\textbf{Deform}}} Checks whether the bone should deform the parented mesh\footnote{Through the Armature Deform Tool with Automatic Weights} or not. The bone defines a volume of 
+    space inside which vertices are affected. Such volume is called \textit{Envelope}. We can control its Size with \mbox{\textit{Envelope Distance}}, Head and Tail Radius. \textbf{Envelopes are 
+    considered only if you skin with \mbox{Deform/With Envelope Weights}}
+    \begin{center}
+        \includegraphics[width=0.3\textwidth]{blender_docs_images/animation_armatures_bones_properties_deform_envelope-distance.png}
+    \end{center}
+    Furthermore, for parts of the geometry shared by more than 1 bone, we can use the \textit{Envelope Weight} option on these neighboring bones to given an importance to each.
+\end{itemize}
+
+\subsubsection{Armature Properties}
+Basic ones:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Pose tab to switch between the rest position of the armature and the current pose position
+    \item Motion Paths (See Motion Path Animation Subsection)
+    \item Inverse Kinematic: chooses the IK Solver (See Bone Constraints paragrah, Inverse kinematic)
+    \item Bones Collection (Explained above)
+\end{itemize}
+
+\subsubsection{Skinning}\label{armature:skinning}
 Select the mesh, select the armature\footnote{child then parent}, \mbox{\textbf{Ctrl + P}} -> Choose \mbox{Armature Deform/With Automatic Weights}. The mesh not has a \textit{Armature} Modifier\footnote{Be 
 carefor of where in the modifier list the armature modifier is. Exmaple: It shouldn't be on below a subdivision modifier, such that it controls a simpler mesh. It shouldn't be above a mirror modifier, 
 otherwise only the original mesh, and not the mirrored one, will be deformed. \textbf{Modifiers are applied top to bottom}}\par
@@ -723,13 +800,33 @@ are affected by a given bone.
     \item with the skinned mesh selected, go to the Data panel of the \mbox{\textit{Properties Editor}}, \mbox{\textit{Vertex Group}} and select a vertex group for a bone. Pressing \textbf{A} with a 
     vertex group selected will select all vertices in the vertex group
 \end{itemize}
+From the above considerations, we understand that blender has Two ways of Skinning
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item \mbox{\textit{\textbf{Parent/Constrain Objects to Bones}}}: When you transform the bones in \mbox{\textit{Pose Mode}}, the "Child" mesh gets transform bot \textbf{never} deformed
+    \item \mbox{\textit{\textbf{Armature Modifier on a mesh}}}\footnote{WHat the \mbox{Armature Deform/With Automatic weights} does}: Deform the geometry of the objects based on per bone weight 
+    association to some vertex groups
+\end{itemize}
 
 \paragraph{Weight Paint Overview}
 Video Workshop: 1:14:25\\
 Clicking \mbox{\textbf{Ctrl + RMB}}\footnote{I use right mouse button selection, otherwise left mouse button} lets you select the bone you want to edits the weights of.\\
 By clicking into the brush icon (under the \mbox{"Weight Paint"} text) you can select the type of brush you want to use. By type we mean the math operation done to the weights. (eg. add, subtract).\\
 In weight painting, having a \textbf{mirror modifier} saves you a lot of headache! Blender can recognize .R and .L bones with the mirror modifier!\\
+In short, follow this simple 6 step guide: \href{https://docs.blender.org/manual/en/4.3/sculpt_paint/weight_paint/usage.html}{https://docs.blender.org/manual/en/4.3/sculpt\_paint/weight\_paint/usage.html}
 
+\subsubsection{Posing}
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item Docs Reference: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/posing/introduction.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/posing/introduction.html}
+    \item Video Reference: 
+    \item Pose Library: \href{https://www.youtube.com/watch?v=95rcqlpsMO4}{https://www.youtube.com/watch?v=95rcqlpsMO4}
+    \item Pose to Pose Workflow\footnote{Watch This when you already know the basics}: \href{https://www.youtube.com/watch?v=p8Bi7k60IS0}{https://www.youtube.com/watch?v=p8Bi7k60IS0}
+\end{itemize}
+Once an Armature is skinned to some objects and ready to go, we need to configure particular armature (or part of it) positions into \textit{Poses} (Example: 
+clenched fist Pose, which edits only the finger bones).\par
+The main course here is to use \textit{Pose Mode}. Its selection commands are the same of Edit Mode, plus \mbox{\textit{Select/Constraint Target}} which selects the bones used as target by the currently
+selected bones.\\
+
+https://docs.blender.org/manual/en/4.3/animation/armatures/posing/editing/introduction.html
 
 \subsection{Lattice}
 \subsection{Constraints}
