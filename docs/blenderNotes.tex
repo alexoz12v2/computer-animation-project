@@ -8,6 +8,7 @@
 \usepackage{xcolor}
 \usepackage{fancyvrb}
 \usepackage{longtable}
+\usepackage{wrapfig}
 \usepackage{booktabs}
 \usepackage{mdframed}
 \usepackage{lmodern} % For better font rendering
@@ -825,16 +826,90 @@ Once an Armature is skinned to some objects and ready to go, we need to configur
 clenched fist Pose, which edits only the finger bones).\par
 The main course here is to use \textit{Pose Mode}. Its selection commands are the same of Edit Mode, plus \mbox{\textit{Select/Constraint Target}} which selects the bones used as target by the currently
 selected bones.\\
+If, during editing of a particularly heavy Skinned object, you experience some lag, you can enable, in the \mbox{\textit{Armature Panel}}, the \mbox{\textit{Delay Deform}} button, which will trigger the 
+deformation only when you finish transforming a bone.\\
+For a thorough overview of \textit{Pose Mode}, let us exclude commands analogous to \textit{Edit Mode} like \textit{Apply} or \textit{Clear Transform}.
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item \textit{Copy Paste} in Pose Mode, will actually copy the pose of the selected bones. Also, if you want to flip the pose along the X axis, you can use \mbox{\textit{Paste Flipped}} (\mbox{\textbf{Ctrl + Shift + V}})
+    \item \textit{Propagate} (\mbox{\textbf{Alt + P}}) the current pose to another Keyframe/keyframe range (specified in options like "To Next Keyframe")
+    \item \mbox{\textit{In-Between Tools}}: Tools to control interpolation between poses. All the following commands are in the \mbox{\textit{Pose/In-Betweens/}} menu, and some have shortcuts
+    \begin{itemize}[noitemsep]
+        \item \mbox{\textbf{\textit{Push Pose From Breakdown}}} (\mbox{\textbf{Ctrl + E}}) interpolates the current pose by making it closer to the next keyframed position. 
+        Video Reference: \href{https://www.youtube.com/watch?v=R0o_yHwSafE}{https://www.youtube.com/watch?v=R0o\_yHwSafE} (first 3 minutes).\\ Similiar is \mbox{\textit{Pose Breakdowner Tool}}, which does 
+        the same thing, but it is interactive and therefore gives more control. For example, we can choose (like the Grab tool) which "axes" to affect
+        \begin{itemize}[topsep=0pt, noitemsep]
+            \item \textbf{G, R, S}: move, rotate, scale
+            \item \textbf{X, Y, Z}: to the corresponding axes
+            \item \textbf{B}: Bendy bones
+        \end{itemize}
+        \item \mbox{\textbf{\textit{Relax Pose To Breakdown}}}\footnotemark while the previous tools brings the pose closer to the next keyframe, this one pulls the pose closer to the previous keyframed position
+    \end{itemize}
+\end{itemize}
+\footnotetext{There are also push/relax pose with respect to the rest pose}
 
-https://docs.blender.org/manual/en/4.3/animation/armatures/posing/editing/introduction.html
+\paragraph{Pose Library}
+To bring together Armatures with a Skinned Mesh, Actions, and the NLA Editor, the \textbf{\textit{Pose Library}} comes into play. It is a simple .blend file which will store a catalogue of poses for a 
+given object, each stored as a so-called \textit{\textbf{Pose Asset}}.\par
+First and foremost, a brief introduction on the \textit{Asset Browser} (\small Video Reference: \href{https://www.youtube.com/watch?v=cbzBt60dhY8}{https://www.youtube.com/watch?v=cbzBt60dhY8}).\par
+
+\paragraph{Bone Constraints: Inverse Kinematics}
+Inverse Kinematics is a bone-based posing technique which allows \textbf{automatic positioning of a Chain of bones} by only manipulating the \textbf{Last bone in the chain}. (see example in introduction to armatures).\par
+Such Constraints are \textit{\textbf{IK Solver}} and \textit{\textbf{Spline IK}}, which will be discussed when talking about Tracking in Subsection \ref{constraints}. In here, instead, we discuss the 
+bone panel properties about \textit{Inverse Kinematic}, for the standard solver
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item \textit{IK Stretch} Stretch influence to IK target.
+    \item \textit{Lock} Disallow movement around the axis.
+    \item \textit{Stiffness} Stiffness around the axis. Influence disabled if using Lock.
+    \item \textit{Limit} Limit movement around the axis.
+\end{itemize}
+While \textit{IK Solver} tries to align a chain to point towards a Target and flex with respect to a Pull Target, the \textit{Spline IK} is a constraint which aligns  a chain of notes along a curve.
+Useful to model Tentacles, Tails, Ropes, ...\par
+To setup Spline IK, it is necessary to have a chain of connected bones and a curve to constrain these bones to:
+\begin{enumerate}[topsep=0pt, noitemsep]
+    \item With the last bone in the chain selected, add a Spline IK Constraint from the Bone Constraints tab in the Properties.
+    \item Set the Chain Length setting to the number of bones in the chain (starting from and including the selected bone) that should be influenced by the curve.
+    \item Finally, set the Target field to the curve that should control the curve.
+\end{enumerate}
+Tips:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item not too long bones and with same length
+    \item Use few control points
+\end{itemize}
+Complete controls in \url{https://docs.blender.org/manual/en/4.3/animation/armatures/posing/bone_constraints/inverse_kinematics/spline_ik.html}\\
+Video reference in \url{https://www.youtube.com/watch?v=vZaNZhAoMts}
+
+\subsection{Constraints}\label{constraints}
+\begin{center}
+    \includegraphics[width=0.5\textwidth]{blender_docs_images/my_constraint_stack.png}
+\end{center}
 
 \subsection{Lattice}
-\subsection{Constraints}
+3D Grid created with the \textit{Lattice Modifier}. It is basically a localized Proportional Editing used to deform a mesh, mainly to create \textit{Shape Keys} (See subsection \ref{shapekeys})
+
 \subsection{Drivers}
-\subsection{Shape Keys}
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Intro: \href{https://www.youtube.com/watch?v=rdHIrK6qvxM}{https://www.youtube.com/watch?v=rdHIrK6qvxM}
+\end{enumerate}
+A driver is a relationship tool which controls the properties of some objects with properties of some other objects, as specified by a function\footnote{Namely, an F-Curve} or mathematical expression.\par
+The languages the driver mathematical expressions use is a subset of the Python Programming language. Quick Reference: \url{https://docs.blender.org/manual/en/4.3/animation/drivers/drivers_panel.html#drivers-simple-expressions}\par
+\paragraph{Introduction Workflow from video}
+To create a Driver from a property, right click on it and \mbox{\textit{Copy as a new Driver}}. This will put it into the clipboard, therefore you can go into another property of another object and 
+use \mbox{\textit{Paste Driver}}. \textbf{The drived property becomes purple}.\\
+Of course, once a driver is created, it is visible from the \textit{Outliner} in \textit{Blender File} Display Mode.\par
+As a metaphor, Blender Drivers are very similiar to Excel Sheet's computed cell values.\\
+Another button is: Right click to a property and \mbox{\textit{Add A Driver}}, which will open an Expression editor
+\begin{wrapfigure}{l}{0.25\textwidth}
+    \includegraphics[width=0.2\textwidth]{blender_docs_images/my_driver_scriptable_expression.png}
+    \caption{Scriptable Expression editor after \textit{Add A Driver}}
+\end{wrapfigure}
+Once you close that popup, you need to Open the \textit{Driver Editor} and select the object with driven (purple) properties to get it back.
+
+\subsection{Shape Keys}\label{shapekeys}
+
 \subsection{Motion Paths}
 
 \section{Animations Through Physics}
+https://www.youtube.com/watch?v=69peFKU4XqI
 
 \section{Compositing Essentials}
 
