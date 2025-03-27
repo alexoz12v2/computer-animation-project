@@ -13,6 +13,8 @@
 \usepackage{mdframed}
 \usepackage{lmodern} % For better font rendering
 \usepackage{titlesec} % titleformat
+\usepackage{multicol}
+\usepackage{algorithm2e,caption}
 
 \definecolor{codebg}{rgb}{0.95,0.95,0.95}
 
@@ -711,7 +713,7 @@ As we've seen, bones can be classified into 2 basic categories, \textit{Deformin
     \item \textit{Control Bones}: They control other bones and have no direct effect on vertices. Examples of this are \textit{IK Target Bones} and \textit{Main Controller Bone}
 \end{itemize}
 
-\paragraph{Bone Collections}
+\paragraph{Bone Collections}\footnote{Added From Blender 4.0}
 Similiarly to how you can group objects into Collections in the \mbox{\textit{Outliner Editor}}, you can group bones into \mbox{\textit{Bones Collections}}. \textbf{This won't affect the bones hierarchy}.
 Bone Collections can be created and managed from the \textit{Armature} and \textit{Bone} Property Panels in the \mbox{\textit{Property Editor}}.\par\footnote{Note: Bone Collections are a blender 4.0 
 replacement for armature layers and bone groups}
@@ -892,19 +894,88 @@ Video reference in \url{https://www.youtube.com/watch?v=vZaNZhAoMts}
 \end{enumerate}
 A driver is a relationship tool which controls the properties of some objects with properties of some other objects, as specified by a function\footnote{Namely, an F-Curve} or mathematical expression.\par
 The languages the driver mathematical expressions use is a subset of the Python Programming language. Quick Reference: \url{https://docs.blender.org/manual/en/4.3/animation/drivers/drivers_panel.html#drivers-simple-expressions}\par
+\noindent
+\begin{minipage}{0.25\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{blender_docs_images/my_driver_scriptable_expression.png}
+    \captionof{figure}{Scriptable Expression editor after \textit{Add A Driver}}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.7\textwidth}
 \paragraph{Introduction Workflow from video}
 To create a Driver from a property, right click on it and \mbox{\textit{Copy as a new Driver}}. This will put it into the clipboard, therefore you can go into another property of another object and 
 use \mbox{\textit{Paste Driver}}. \textbf{The drived property becomes purple}.\\
 Of course, once a driver is created, it is visible from the \textit{Outliner} in \textit{Blender File} Display Mode.\par
 As a metaphor, Blender Drivers are very similiar to Excel Sheet's computed cell values.\\
 Another button is: Right click to a property and \mbox{\textit{Add A Driver}}, which will open an Expression editor
-\begin{wrapfigure}{l}{0.25\textwidth}
-    \includegraphics[width=0.2\textwidth]{blender_docs_images/my_driver_scriptable_expression.png}
-    \caption{Scriptable Expression editor after \textit{Add A Driver}}
-\end{wrapfigure}
-Once you close that popup, you need to Open the \textit{Driver Editor} and select the object with driven (purple) properties to get it back.
-
+Once you close that popup, you need to open the \textit{Driver Editor} and select the object with driven (purple) properties to get it back.
 \subsection{Shape Keys}\label{shapekeys}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Video Reference \url{https://www.youtube.com/watch?v=7WGtmADZCzU}
+    \item Blender Reference: \url{https://docs.blender.org/manual/en/4.3/animation/shape_keys/introduction.html}
+\end{itemize}
+\textit{Shape Keys}\footnote{Also \textit{Morph Targets}, \textit{Blend Shapes}}, authored in the \mbox{\textit{Shape Keys Panel}} in the (Mesh) Data Tab of the Properties. This panel contains
+the \textit{Influence Value} for each possible Shape Key defined.\\
+Whenever an object "shows" a shape key, it shows it with a certain percentage or \textbf{Influence}. This is usually paired with \textit{Vertex Group} Assignment to some shape keys, such that
+some shape keys do not modify parts of your model they are not supposed to touch.\footnote{You can set the vertex group for a selected shape key from the data tab}
+\end{minipage}
+
+\begin{center}
+    \textbf{A \textit{Shape Key} cannot modify the topology of the mesh}\footnote{As a consequence, Shape keys should be added \textbf{after} the topology is finalized}\\
+    The first shape key to be created is always the Base, ie the model in its "resting pose"
+\end{center}
+To \textbf{Add a new Shape Key}, from the \mbox{\textit{Shape Key Tab}}, click the \texttt{\textbf{+}} button. If you add a new shape key with the command 
+\mbox{\textit{Special/New Shape from Mix}}, the new shape key will be created starting from the current vertices configuration.\footnote{meaning the new shape key will start as a mix of the current shape keys, each with the current influence}\par
+A mesh defines a \textbf{Stack} of Shape Keys, each of which can be either \textbf{Relative} or \textbf{Absolute}
+\begin{longtable}{p{0.1\textwidth}|p{0.4\textwidth}p{0.4\textwidth}}
+    \toprule
+    \textbf{*} & \textbf{Absolute} & \textbf{Relative} \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{3}{r}{Continue...} \\
+    \bottomrule
+    \endfoot
+    \bottomrule
+    \endlastfoot
+
+    Usage & Deform objects into different shape over time & Muscles, linb joints, facial animation \\
+    Result & Each shape defines an evaluation time, and the result will be the interpolation between two shapes in two adjacent evaluation times & Each shape defines a weight, and the result will be the mix of all the relative offsets to the reference key \\
+    \textit{Value}\footnote{Number which appears in the Shape Key list in the Data tab} & \textit{Evaluation Time}{\tiny(below)} at which the shape key will be active & The Weight of the blend between the Shape key and the \textit{reference key} {\tiny (see below)} \\
+    \textit{Basis} & Name of the first (topmost) key in the stack, represents the original position & Name of the first (topmost) key in the stack, represents the original position. It is the reference key and is not weightable \\
+\end{longtable}
+To switch Shape keys between Absolute and Relative, use the checkbox in the Shape Keys Menu in the Data Tab
+\begin{center}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{blender_docs_images/animation_shape-keys_shape-keys-panel_absolute.png}
+        \captionof{figure}{Absolute Shape Keys Panel}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{blender_docs_images/animation_shape-keys_shape-keys-panel_interpolation-types.png}
+        \captionof{figure}{Interpolation Types for Absolute Shape Keys}
+    \end{minipage}
+\end{center}
+
+% here there is still the displacement given by the wrapfigure
+They each have their own settings. To the left, Relative Shape Keys settings, to the right, Absolute Shape Keys settings
+\begin{multicols}{2}
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item \textit{Value}: The weight of the blend between the shape key and its reference key (usually the Basis shape). A value of 0.0 denotes 100\% influence of the reference key and 1.0 of the shape key.
+        \item \textit{Range}: Minimum and maximum range for the influence value of the active shape key. Blender can extrapolate results when the Value goes lower than 0.0 or above 1.0.
+        \item \textit{Vertex Group}: Limit the active shape key deformation to a vertex group. Useful to break down a complex shape into components by assigning temporary vertex groups to the complex shape and copying the result into new simpler shapes.
+        \item \textit{Relative To}: Select the shape key to deform from. This is called the Reference Key for that shape.
+    \end{itemize}
+   \columnbreak 
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item \textit{Re-Time Shape Keys} (clock icon): Absolute shape keys are timed, by order in the list, at a constant interval. This button resets the timing for the keys. Useful if keys were removed or re-ordered.
+        \item \textit{Interpolation}: Controls the interpolation between shape keys.  Linear, Cardinal, Catmull-Rom, B-Spline The red line represents interpolated values between keys (black dots).
+        \item \textit{Evaluation Time} Controls the shape key influence. Scrub to see the effect of the current configuration. Typically, this property is \textbf{keyed for animation or rigged with a driver}.
+    \end{itemize}
+\end{multicols}
+
 
 \subsection{Motion Paths}
 
@@ -916,3 +987,5 @@ https://www.youtube.com/watch?v=69peFKU4XqI
 \section{Video Editing Essentials}
 
 \end{document}
+
+% TODO: file con un driver che pilota il colore di una palla a seconda della sua altezza, e shape keys per fare squash e stretch
