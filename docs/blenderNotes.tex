@@ -204,6 +204,38 @@ for obj in bpy.context.selected_objects:
     \item Baking: \href{https://www.youtube.com/watch?v=sOvRr_D8ZpU}{https://www.youtube.com/watch?v=sOvRr\_D8ZpU}
 \end{itemize}
 
+\subsection{Aside: Index Of Refraction for Metals}
+Blender's Principled BSDF shader expects a single float for the Index of Refraction (IOR), which is suitable 
+for dielectrics but not ideal for metals, which use complex IOR values (with real and imaginary components) or RGB-based IOR values.\par
+\paragraph{Handling RGB IOR in Blender's Principled BSDF}
+Since Blender's Principled BSDF does not support complex or RGB IOR directly, you have a few options:
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item \textit{Use the Specular Tint and Metallic Inputs}
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item Set Metallic = 1 to define the material as a metal.
+        \item Use the Base Color to approximate the reflection color.
+        \item Adjust Specular Tint to shift the highlights towards the desired reflectance color.
+    \end{itemize}
+    \item \textit{Convert RGB IOR to a Specular Value Approximation}
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item If you have an RGB IOR value (e.g., from refractiveindex.info), you can approximate the reflection using the Fresnel equations. For metals, the reflectance $\bar{R}$ at
+        normal incidence is \[ R = \frac{(n-1)^2+k^2}{(n+1)^2+k^2} \] where
+        \begin{itemize}[noitemsep, topsep=0pt]
+            \item[] $n$ real part of the Index of Refraction (influences refraction and reflection)
+            \item[] $k$ complex part of the Index of Refraction (influences absorption)
+        \end{itemize}
+        This reflectance value is computed for each color channel, and the result is the \mbox{\textit{Base Color}}
+    \end{itemize}
+    \item \textit{Use a Shader Mix with Fresnel Inputs}: Instead of using the Principled BSDF, you can create a custom Shader Mix using:
+    \begin{itemize}[topsep=0pt, noitemsep]
+        \item A Glossy BSDF with color based on the RGB IOR.
+        \item A Fresnel node or Layer Weight node to drive the blending.
+    \end{itemize}
+    \item \textit{Use a Node Group That Supports Complex IOR}: Some custom node setups, like "Complex IOR" node groups, allow you to 
+    input both n and k values and compute proper Fresnel reflectance. These setups typically use Math nodes to handle the complex Fresnel equations.
+\end{enumerate}
+Video Reference: \url{https://www.youtube.com/watch?v=yX1CJZswHPs}
+
 \section{Pivot to Cursor}
 Press \textbf{Shift + Right Click} to place the 3D Cursor manually.  Or use \textbf{Shift + S} → "Cursor to Selected" to place it at the selection.\par
 Instead, to change the pivot point to cursor, do the following:
@@ -219,8 +251,83 @@ Alternatively:
     \item Object - Set Origin
 \end{itemize}
 
-\section{Sharing: Asset Browser}
-Video Reference: \href{https://www.youtube.com/watch?v=cbzBt60dhY8}{https://www.youtube.com/watch?v=cbzBt60dhY8}\\
+\section{Sharing: Asset Browser}\label{asset:browser}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Video Reference: \url{https://www.youtube.com/watch?v=cbzBt60dhY8}
+    \item Blender docs: \url{https://docs.blender.org/manual/en/4.3/editors/asset_browser.html}
+\end{itemize}
+The \mbox{\textit{Asset Browser}} is the main interface to organize Models, Materials, Geometry Nodes, ... \textbf{Poses} Across blend files.\par
+To store our own assets, the first step is to choose the \textbf{Assets Folder}
+\paragraph{Where are my Assets}
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Go To \mbox{Edit/Preferences/File Paths/}. Under Assets Libraries, add the folder for your assets (and possibly, remove the preexisting one). 
+    \begin{center}
+        \textbf{Library Paths} do not support relative paths of the form \mbox{\texttt{//AssetBrowser/}}\footnote{Even if there is a relative path checkbox, it's broken as of blender 4.3}
+    \end{center}
+    \begin{center}
+        Once registered, you can select the asset library in the Asset Browser. All the blend-files in the asset library will be scanned for assets, and all those assets will be shown in the Asset Browser.
+    \end{center}
+    \item Focus on the \mbox{\textbf{Import Method}} Option. This is the import method which will be used if in the \mbox{\textit{Asset Browser Editor}} the \mbox{\textit{Import Method}}
+    Is set to \mbox{\textit{Follow Preferences}}. Either way, the possible options are
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item \mbox{\textit{\textbf{Link}}} Same as bringing the content of another blend file with \mbox{\textit{File/Link}}, Meaning the assets will be linked and read only. Changes to the
+        original will be reflected in the linked references. To introduce variations, we need to use \textit{LIbrary Overrides}
+        \item \mbox{\textit{\textbf{Append}}} Same as \textbf{Copying} the content of another blend file with \mbox{\textit{File/Append}}
+        \item \mbox{\textit{\textbf{Append (Reuse Data)}}} Same as Append, but if the same asset is appended multiple times, Blender will try to reuse as much data as possible (if you introduce)
+        variations on one instance of the asset, blender will need to duplicate the data though
+    \end{itemize}
+\end{enumerate}
+Assets in a asset library can be organized into virtual folders called \mbox{\textbf{\textit{Asset Catalogues}}}
+\paragraph{Asset Types}
+Assets can be broadly divided into two types: primitive and preset assets. Which is which depends on the Data-Blocks type.
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item \textit{Primitive assets} are data-blocks that are either linked or appended to the current file. Examples are objects, materials, and worlds. These can be dragged from the Asset Browser into the scene (objects and worlds), or onto existing objects (materials).
+    \item \textit{Preset assets} are data-blocks that are loaded and then applied to something or activated. An example is a pose asset. When applying the pose, the data-block is loaded from its blend-file, and then the pose is applied to the active armature. Brush assets are an example of an asset type that is activated. They get loaded into the current file and activated for painting or sculpting, but don’t get saved in the file.
+\end{itemize}
+
+\paragraph{Asset Creation}
+To create a \textbf{\textit{Primitive Asset}}
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Create a \mbox{\texttt{.blend}} file into the Asset Folder (configured in the "user" blend file) (also a subfolder of the asset library works)
+    \item Create your mesh (or whatever else)
+    \item From the \mbox{\texttt{Outliner}}, right click on the object and \mbox{\textit{Mark As Asset}} (the generated preview can be replaced with an arbitrary image, eg a render)
+\end{enumerate}
+As you can see, the default generated preview image doesn't render materials for a mesh asset, and that can be confusing. While you can create a quick render, add a fake user to it, 
+pack resources, and set that as a preview manually. \textbf{Quicker way (if a color is enough)}:
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Select the material(s) assigned to the mesh asset
+    \item Copy the base color (\mbox{\textit{Properties Editor}}, Materials Tab with the selected material)
+    \item Scroll down to the \mbox{\textit{Viewport display}} tab, paste the base color into the \textit{Color} property
+\end{enumerate}
+\begin{center}
+    Note: If you imported a primitive asset with the \textbf{Link} method (which is what you should use), you cannot edit anything about it, as all properties are taken from the original 
+    source
+\end{center}
+To add some modifications (which will be stored in a non destructive, additive way) to a linked imported asset, you need to add some \mbox{\textit{\textbf{Library Overrides}}}.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.4\textwidth]{blender_docs_images/my_library_override.png}
+    \caption{Overrideable linked data blocks}
+    \label{fig:override}
+\end{figure}
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Select the data blocks you want to override (they are recognizeable from the \mbox{\textit{Outliner}} because they have a chain icon (figure \ref{fig:override}))
+    \item Right click, \mbox{\textit{Library Override/Make/Selected}}. Example: If you override only the object data block, you can freely transform the imported object
+    \item As a side note, you can create many variants of the same asset in this way
+    \item \textbf{Note}: Linked assets cannot be renamed, even if you override them. Solution: Put them inside a singleton collection
+\end{enumerate}
+Final Notes on Primitive Assets:
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item If you make a Primitive asset out of a \textbf{Skinned Mesh}, whenever you import it, its armature will come along with it automatically, 
+    because its \mbox{\textit{Armature Modifier}} references the armature object.
+    \item An \textit{Action} can be marked as an asset by right clicking it from the \mbox{\textit{Dope Sheet Editor}}, Action Editor, or from the \textit{Outliner}, 
+    Blender File display mode, and selecting \mbox{\textit{\textbf{Mask as Asset}}}
+\end{itemize}
+\textit{\textbf{Preset Assets}} each have their own dedicated button. We'll focus on \mbox{\textit{\textbf{Pose Assets}}}. To use them, we need to first and foremost 
+\textbf{enable the add-on} called \mbox{\textit{\textbf{Animation: Pose Library}}}. Basics covered here, more on Posing (subsection \ref{sec:posing}). Usually, pose assets are exported 
+alongside a primary skinned mesh asset in its rest position.
+\paragraph{Pose Library}
+In the \mbox{\textit{Asset Browser}}, Select from the topbar \mbox{\textit{Asset/Create Pose Asset}}, and will create an asset with the current pose of the selected skinned mesh
 
 \section{Animations: Docs Summary}
 These notes about animations in Blender are made by summarizing the \href{https://docs.blender.org/manual/en/4.3/animation/introduction.html}{Blender 4.3 Docs}.
@@ -251,7 +358,7 @@ Any property in the \textit{Properties Editor} has a \textit{State Color}
 \end{longtable}
 
 \subsubsection{Rigging}
-
+Reference Rig: \url{https://www.blendswap.com/blend/23220}\\
 Rigging = adding controls handles to animate an object. Blender offers the following feature to rig a model
 \begin{longtable}{p{0.2\textwidth}p{0.7\textwidth}}
     \toprule
@@ -817,7 +924,7 @@ By clicking into the brush icon (under the \mbox{"Weight Paint"} text) you can s
 In weight painting, having a \textbf{mirror modifier} saves you a lot of headache! Blender can recognize .R and .L bones with the mirror modifier!\\
 In short, follow this simple 6 step guide: \href{https://docs.blender.org/manual/en/4.3/sculpt_paint/weight_paint/usage.html}{https://docs.blender.org/manual/en/4.3/sculpt\_paint/weight\_paint/usage.html}
 
-\subsubsection{Posing}
+\subsubsection{Posing}\label{sec:posing}
 \begin{itemize}[topsep=0pt, noitemsep]
     \item Docs Reference: \href{https://docs.blender.org/manual/en/4.3/animation/armatures/posing/introduction.html}{https://docs.blender.org/manual/en/4.3/animation/armatures/posing/introduction.html}
     \item Video Reference: 
@@ -851,8 +958,8 @@ For a thorough overview of \textit{Pose Mode}, let us exclude commands analogous
 
 \paragraph{Pose Library}
 To bring together Armatures with a Skinned Mesh, Actions, and the NLA Editor, the \textbf{\textit{Pose Library}} comes into play. It is a simple .blend file which will store a catalogue of poses for a 
-given object, each stored as a so-called \textit{\textbf{Pose Asset}}.\par
-First and foremost, a brief introduction on the \textit{Asset Browser} (\small Video Reference: \href{https://www.youtube.com/watch?v=cbzBt60dhY8}{https://www.youtube.com/watch?v=cbzBt60dhY8}).\par
+given object, each stored as a so-called \textit{\textbf{Pose Asset}}\footnote{For more information on the \mbox{\textit{Asset Browser}}, look at Section \ref{asset:browser}}.\par
+
 
 \paragraph{Bone Constraints: Inverse Kinematics}
 Inverse Kinematics is a bone-based posing technique which allows \textbf{automatic positioning of a Chain of bones} by only manipulating the \textbf{Last bone in the chain}. (see example in introduction to armatures).\par
