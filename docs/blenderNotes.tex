@@ -957,9 +957,57 @@ For a thorough overview of \textit{Pose Mode}, let us exclude commands analogous
 \footnotetext{There are also push/relax pose with respect to the rest pose}
 
 \paragraph{Pose Library}
+\begin{itemize}[noitemsep, topsep=0pt]
+    \item Video Reference: \url{https://www.youtube.com/watch?v=95rcqlpsMO4}
+\end{itemize}
 To bring together Armatures with a Skinned Mesh, Actions, and the NLA Editor, the \textbf{\textit{Pose Library}} comes into play. It is a simple .blend file which will store a catalogue of poses for a 
 given object, each stored as a so-called \textit{\textbf{Pose Asset}}\footnote{For more information on the \mbox{\textit{Asset Browser}}, look at Section \ref{asset:browser}}.\par
-
+First and foremost, make sure that the pose library add-on is enabled.\par
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item Prepare your \mbox{\textit{Asset Browser}} and \mbox{\textit{Dope Sheet Editor}} in \mbox{\textit{Action Editor}}.
+    \item In \mbox{\textit{Pose Mode}} with your rig selected, create a pose.
+    \item Select the bones relevant to the pose
+    \item With the asset browser with Backing set as \mbox{\textit{Current File}}, Click in the \mbox{\textit{Dope Sheet Editor}} the button \mbox{\textit{Create Pose Asset}}
+    \begin{itemize}[noitemsep, topsep=0pt]
+        \item If you want to keep working on your pose, you actually can, because \textbf{a Pose Asset is an Action}\footnote{be sure to select the correct action in the Dope Sheet}
+        which should be animated only on keyframe zero. All action associated to a pose asset will appear with a "book icon" inside the action editor
+        \begin{center}
+            \includegraphics[width=0.3\textwidth]{blender_docs_images/my_icon_pose_asset.png}
+        \end{center}
+        \item By changing the name of the action, the pose asset name will also change
+        \item the generated thumbnail will create a render from the active camera, so
+        \begin{enumerate}[noitemsep, topsep=0pt]
+            \item Position yourself in a view which looks at the relevant bones
+            \item \mbox{\textbf{Ctrl + Alt + Numpad 0}} to position the active camera to the current viewport position
+            \item change the render resolution to something square
+            \item select the refresh Thumbnail in the \mbox{\textit{Asset Browser}} with the asset selected
+        \end{enumerate}
+    \end{itemize}
+\end{enumerate}
+We are able to \textit{Extract Poses From an Existing Animation} by
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item selecting the keyframe we are interested in in some action of a skinned mesh from the \mbox{\textit{Dope Sheet Editor}}
+    \item Click the \mbox{\textit{Create Pose Asset}} Button
+    \item Move the keyframed properties to keyframe 0 and clear any extrapolation settings from the \mbox{\textit{Curve Editor}}
+\end{enumerate}
+There's also another button, which is \mbox{\textit{Copy Pose As Asset}}, and in the \mbox{\textit{Asset Browser}}'s topbar there's \mbox{\textit{Asset/Paste Pose Asset}}. This is useful 
+if you want to extract a pose you created in another blender scene, \textbf{not} your asset scene.\par
+\textbf{To Apply Poses}, open the \textit{Animation} tab from the viewport (added with the add-on). 
+\begin{enumerate}[noitemsep, topsep=0pt]
+    \item click the pose to apply it, or right click and \textit{Blend pose} to assign a percentage to it
+    \item You can also use \textit{Apply Flipped}, to apply the pose to the symmetric bone, meaning you need to create bones only for the right side or the left side of a symmetric character.
+    If, in \textit{Blend Pose}, you click \textbf{Ctrl} while dragging, you will start blending the opposite bone
+    \item The bones affected by the selected pose are the \textbf{Intersection betewen the currently selected bones and the bones used to create the pose}
+    \item keyframe between poses on a new action as needed
+    \item Push the newly created action, obtained by the composed poses
+\end{enumerate}
+As a last note, Pose Asset are applicable only to \textbf{Compatible Armatures}, meaning
+\begin{itemize}[topsep=0pt, noitemsep]
+    \item Same bone names
+    \item Same Bone Rolls
+    \item same bone collections
+    \item same hierarchy
+\end{itemize}
 
 \paragraph{Bone Constraints: Inverse Kinematics}
 Inverse Kinematics is a bone-based posing technique which allows \textbf{automatic positioning of a Chain of bones} by only manipulating the \textbf{Last bone in the chain}. (see example in introduction to armatures).\par
