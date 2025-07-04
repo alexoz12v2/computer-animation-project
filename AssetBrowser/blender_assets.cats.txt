@@ -9,3 +9,5 @@ VERSION 1
 9b7adff5-4a91-4da2-b981-513b3c3b0d5a:Materials:Materials
 f0353192-1881-48e2-b3fb-b020bbf25bfe:StaticMeshes:StaticMeshes
 5168d47c-70b9-409b-b367-cae026556a99:poule:poule
+ee45f99a-95cc-489f-a662-7204ffc300e0:poule/actions:poule-actions
+aa107ba7-c707-4e76-9d36-291b4e37f413:poule/poses:poule-poses
